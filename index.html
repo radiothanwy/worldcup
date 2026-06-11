@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Algorithm of Together | Global Initiative</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #000; color: #fff; overflow-x: hidden; }
+        ::selection { background: #dc2626; color: #fff; }
+        
+        /* Section 1: Hero Video Overlay */
+        .video-overlay { background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, #000 100%); }
+        
+        /* CTA Button Glitch/Pulse Effect */
+        .cta-pulse { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); animation: pulse-red 2s infinite cubic-bezier(0.66, 0, 0, 1); }
+        @keyframes pulse-red { to { box-shadow: 0 0 0 30px rgba(220, 38, 38, 0); } }
+
+        /* Section 3: Sticky Stacking Cards */
+        .stack-container { position: relative; padding-bottom: 20vh; }
+        .stack-card { position: sticky; top: 15vh; transform-origin: top center; transition: transform 0.5s ease, filter 0.5s ease; box-shadow: 0 -20px 30px rgba(0,0,0,0.5); }
+        
+        /* Fade In Animations */
+        .reveal { opacity: 0; transform: translateY(50px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body class="antialiased font-sans">
+
+    <section class="relative h-screen flex items-center justify-center overflow-hidden">
+        <video autoplay loop muted playsinline class="absolute z-0 w-auto min-w-full min-h-full max-w-none object-cover opacity-60 grayscale filter">
+            <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+        <div class="absolute z-10 inset-0 video-overlay"></div>
+        
+        <div class="relative z-20 text-center px-6 reveal active">
+            <h1 class="text-7xl md:text-9xl font-black uppercase tracking-tighter mb-6 leading-none">
+                The Algorithm <br> <span class="text-red-600">of Together</span>
+            </h1>
+            <p class="text-xl md:text-2xl font-light text-zinc-300 max-w-2xl mx-auto mb-12 uppercase tracking-widest">
+                Defusing global friction. One story at a time.
+            </p>
+            <a href="#section-2" class="inline-block">
+                <svg class="w-10 h-10 mx-auto text-red-600 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+            </a>
+        </div>
+    </section>
+
+    <section id="section-2" class="py-32 px-6 bg-black relative border-b border-zinc-900 reveal">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-5xl md:text-7xl font-black uppercase tracking-tight mb-8">Enter the Global Roster</h2>
+            <p class="text-xl text-zinc-400 mb-16 font-serif italic">
+                You are not just a spectator. You are the variable that changes the equation. Step into the arena, lock your colors, and bypass the rivalry.
+            </p>
+            <a href="app.html" class="inline-block bg-red-600 text-white text-2xl font-black uppercase tracking-widest py-8 px-16 hover:bg-white hover:text-red-600 transition-all duration-300 cta-pulse transform hover:scale-105">
+                Initialize App
+            </a>
+        </div>
+    </section>
+
+    <section class="py-32 px-6 bg-zinc-950">
+        <div class="max-w-4xl mx-auto mb-20 text-center reveal">
+            <h2 class="text-4xl font-black uppercase tracking-widest text-red-600 mb-4">The Sociological Engine</h2>
+            <p class="text-zinc-400 text-lg">How we turn stadium chaos into structural peace.</p>
+        </div>
+        
+        <div class="max-w-3xl mx-auto stack-container">
+            <div class="stack-card bg-zinc-900 border border-zinc-800 p-12 mb-[10vh] rounded-2xl" style="top: 15vh; z-index: 1;">
+                <span class="text-6xl font-black text-red-600/20 absolute top-4 right-8">01</span>
+                <h3 class="text-3xl font-black uppercase mb-4 text-white">The Shared Pain</h3>
+                <p class="text-zinc-400 text-xl leading-relaxed">Opposing fans are not enemies. They are peers navigating the exact same systemic helplessness against the giants of modern geopolitics and corporatism.</p>
+            </div>
+            <div class="stack-card bg-zinc-800 border border-zinc-700 p-12 mb-[10vh] rounded-2xl" style="top: 18vh; z-index: 2;">
+                <span class="text-6xl font-black text-red-600/20 absolute top-4 right-8">02</span>
+                <h3 class="text-3xl font-black uppercase mb-4 text-white">The Analogy Engine</h3>
+                <p class="text-zinc-300 text-xl leading-relaxed">We physically enter the friction of massive fan zones. We pivot the conversation from tribal rivalry to universal truths, establishing an immediate, undeniable shared reality.</p>
+            </div>
+            <div class="stack-card bg-red-600 border border-red-500 p-12 rounded-2xl" style="top: 21vh; z-index: 3;">
+                <span class="text-6xl font-black text-black/20 absolute top-4 right-8">03</span>
+                <h3 class="text-3xl font-black uppercase mb-4 text-white">The Digital Megaphone</h3>
+                <p class="text-red-100 text-xl leading-relaxed">Through high-speed, frictionless technology, those unified moments are instantly immortalized and broadcast globally, replacing narratives of division with data of unity.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-6 bg-black border-y border-zinc-900 reveal">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-4xl font-black uppercase tracking-widest mb-16 text-center">The Architecture of Impact</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="border-l-2 border-zinc-800 pl-6 hover:border-red-600 transition-colors py-4">
+                    <h4 class="text-2xl font-black uppercase text-white mb-2">Sudstudy Operations</h4>
+                    <p class="text-zinc-400">The entire initiative is driven by Sudstudy's high-leverage infrastructural logic, executing complex cross-border coordination with engineering precision.</p>
+                </div>
+                <div class="border-l-2 border-zinc-800 pl-6 hover:border-red-600 transition-colors py-4">
+                    <h4 class="text-2xl font-black uppercase text-white mb-2">The KSK Baseline</h4>
+                    <p class="text-zinc-400">Massive crowd data is filtered and standardized using the pattern recognition models of the Knowledge Starter Kit (KSK), allowing us to scale the unity data.</p>
+                </div>
+                <div class="border-l-2 border-zinc-800 pl-6 hover:border-red-600 transition-colors py-4">
+                    <h4 class="text-2xl font-black uppercase text-white mb-2">CEC Integration</h4>
+                    <p class="text-zinc-400">Customized Educational Content (CEC) frameworks are deployed to rapidly onboard global fan groups into the initiative, bypassing cultural friction.</p>
+                </div>
+                <div class="border-l-2 border-zinc-800 pl-6 hover:border-red-600 transition-colors py-4">
+                    <h4 class="text-2xl font-black uppercase text-white mb-2">FLang & Stars'Up</h4>
+                    <p class="text-zinc-400">Language barriers are broken using FLang models, while initial crowd hostility is physically disarmed using the performative satire of the Stars'Up framework.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-6 bg-zinc-900 relative overflow-hidden reveal">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiMzZjNmNDYiLz48L3N2Zz4=')] opacity-20"></div>
+        <div class="max-w-3xl mx-auto text-center relative z-10">
+            <h2 class="text-5xl font-black uppercase tracking-tight mb-8 text-white">Fund the Peace.</h2>
+            <p class="text-xl text-zinc-400 mb-12 leading-relaxed">
+                We are not selling a product. We are scaling an answer to global polarization. For NGOs, Mayoral Offices, and Patrons who recognize the necessity of integration over division—this is your vanguard.
+            </p>
+            <form id="vipForm" class="bg-black border border-zinc-800 p-8 text-left">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Organization</label>
+                        <input type="text" class="w-full bg-zinc-900 border border-zinc-800 text-white p-3 focus:border-red-500 focus:outline-none" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Direct Contact</label>
+                        <input type="email" class="w-full bg-zinc-900 border border-zinc-800 text-white p-3 focus:border-red-500 focus:outline-none" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-white text-black py-4 font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition-colors">
+                    Request Executive Briefing
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        // Scroll Reveal
+        const reveals = document.querySelectorAll('.reveal');
+        const revealOnScroll = () => {
+            const windowHeight = window.innerHeight;
+            reveals.forEach(reveal => {
+                const revealTop = reveal.getBoundingClientRect().top;
+                if (revealTop < windowHeight - 100) reveal.classList.add('active');
+            });
+        };
+        window.addEventListener('scroll', revealOnScroll);
+        revealOnScroll();
+
+        // Dynamic Card Stacking Visuals
+        const cards = document.querySelectorAll('.stack-card');
+        window.addEventListener('scroll', () => {
+            cards.forEach((card, index) => {
+                const rect = card.getBoundingClientRect();
+                // If card hits its sticky top position, scale down slightly as next cards cover it
+                if (rect.top <= parseInt(card.style.top)) {
+                    const scaleValue = 1 - ((parseInt(card.style.top) - rect.top) * 0.001);
+                    const brightness = 1 - ((parseInt(card.style.top) - rect.top) * 0.002);
+                    if (scaleValue > 0.9) {
+                        card.style.transform = `scale(${scaleValue})`;
+                        card.style.filter = `brightness(${brightness})`;
+                    }
+                } else {
+                    card.style.transform = `scale(1)`;
+                    card.style.filter = `brightness(1)`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
