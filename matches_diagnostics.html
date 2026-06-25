@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Diagnostics | Sudstudy Engine</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        gray: {
+                            850: '#1f2937',
+                            900: '#111827',
+                            950: '#030712',
+                        },
+                        brand: {
+                            500: '#00ff88',
+                            900: 'rgba(0, 255, 136, 0.1)',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #030712;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(17, 24, 39, 1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(17, 24, 39, 1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+        .terminal-line {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 1rem;
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body class="text-gray-300 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Header -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-gray-800">
+            <div>
+                <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+                    <svg class="w-6 h-6 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
+                    UPLINK DIAGNOSTICS <span class="text-gray-500 font-light text-xl">PRO</span>
+                </h1>
+                <p class="text-sm text-gray-400 mt-1 font-mono">Verify sync algorithms & prevent edge-cache locking</p>
+            </div>
+            <div id="status-badge" class="flex items-center gap-2 px-4 py-2 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 font-mono text-sm font-medium transition-colors duration-300">
+                <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" id="status-dot"></span>
+                <span id="status-text">DISCONNECTED</span>
+            </div>
+        </header>
+
+        <!-- Controls & Metrics Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Target Configuration -->
+            <div class="lg:col-span-2 glass-panel rounded-2xl p-6">
+                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    Target Endpoint
+                </h2>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="script-url" placeholder="https://script.google.com/macros/s/.../exec" 
+                        class="flex-1 bg-gray-900/50 border border-gray-700 text-white text-sm font-mono rounded-lg px-4 py-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                    
+                    <div class="flex gap-2">
+                        <button id="btn-test" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white text-sm font-semibold rounded-lg border border-gray-700 hover:border-gray-600 transition-all active:scale-95 flex items-center gap-2 whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
+                            Standard Ping
+                        </button>
+                        <button id="btn-bust" class="px-6 py-3 bg-brand-500 hover:bg-emerald-400 text-gray-950 text-sm font-bold rounded-lg transition-all active:scale-95 shadow-[0_0_15px_rgba(0,255,136,0.3)] hover:shadow-[0_0_20px_rgba(0,255,136,0.5)] flex items-center gap-2 whitespace-nowrap">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            Cache Bust
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Metrics -->
+            <div class="grid grid-cols-2 lg:grid-cols-1 gap-4">
+                <div class="glass-panel rounded-xl p-4 flex flex-col justify-center">
+                    <span class="text-xs text-gray-500 font-mono uppercase">Roundtrip Latency</span>
+                    <div class="flex items-baseline gap-1 mt-1">
+                        <span id="val-latency" class="text-3xl font-bold text-white font-mono">--</span>
+                        <span class="text-gray-500 font-mono text-sm">ms</span>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-xl p-4 flex flex-col justify-center">
+                    <span class="text-xs text-gray-500 font-mono uppercase">Schema Integrity</span>
+                    <span id="val-integrity" class="text-lg font-medium text-gray-400 mt-1">PENDING</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terminal & Docs Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- Dev Terminal -->
+            <div class="rounded-2xl border border-gray-800 bg-[#0A0A0A] shadow-2xl overflow-hidden flex flex-col h-[400px]">
+                <div class="bg-gray-900 px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+                    <div class="flex gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                    </div>
+                    <span class="text-xs font-mono text-gray-500 tracking-widest">system.log</span>
+                    <button id="btn-clear" class="text-xs text-gray-500 hover:text-white transition-colors">CLEAR</button>
+                </div>
+                <div id="terminal-body" class="flex-1 p-4 font-mono text-sm overflow-y-auto custom-scrollbar">
+                    <!-- Logs injected here -->
+                </div>
+            </div>
+
+            <!-- Protocol Documentation -->
+            <div class="glass-panel rounded-2xl p-6 h-[400px] overflow-y-auto custom-scrollbar">
+                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-800 pb-3">Validation Protocol</h2>
+                
+                <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-800 before:to-transparent">
+                    
+                    <!-- Step 1 -->
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-gray-900 bg-gray-800 text-gray-400 group-[.is-active]:bg-brand-500 group-[.is-active]:text-gray-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors">
+                            <span class="font-bold text-sm">1</span>
+                        </div>
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-800 bg-gray-900/50 shadow">
+                            <h3 class="font-bold text-white mb-1">Modify Database</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Change a value in your Google Sheet (e.g., change an Intensity score in CultureDB). Do not run code yet.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-gray-900 bg-gray-800 text-gray-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors" id="step-2-icon">
+                            <span class="font-bold text-sm">2</span>
+                        </div>
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-800 bg-gray-900/50 shadow">
+                            <h3 class="font-bold text-white mb-1">Standard Ping</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Click 'Standard Ping'. The old data should return, proving the 6-hour CacheService is actively protecting your quota.</p>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-gray-900 bg-gray-800 text-gray-400 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors" id="step-3-icon">
+                            <span class="font-bold text-sm">3</span>
+                        </div>
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-800 bg-gray-900/50 shadow">
+                            <h3 class="font-bold text-white mb-1">Force Bust</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Click 'Cache Bust'. Watch the terminal. If it reads the new data, your system is perfect. If old data persists, proceed to deployment fix.</p>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <!-- Deployment Warning -->
+                <div class="mt-8 p-4 rounded-xl bg-orange-500/10 border border-orange-500/20">
+                    <h4 class="text-sm font-bold text-orange-400 flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        Version Lockdown Warning
+                    </h4>
+                    <p class="text-xs text-gray-400 leading-relaxed">
+                        If Apps Script ignores the Cache Bust, it is frozen. Go to your Script Editor > Deploy > Manage Deployments > Edit (Pencil) > <strong>Version: New Version</strong> > Deploy.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const DOM = {
+            url: document.getElementById('script-url'),
+            btnTest: document.getElementById('btn-test'),
+            btnBust: document.getElementById('btn-bust'),
+            btnClear: document.getElementById('btn-clear'),
+            terminal: document.getElementById('terminal-body'),
+            badge: document.getElementById('status-badge'),
+            badgeDot: document.getElementById('status-dot'),
+            badgeText: document.getElementById('status-text'),
+            valLatency: document.getElementById('val-latency'),
+            valIntegrity: document.getElementById('val-integrity'),
+            step2Icon: document.getElementById('step-2-icon'),
+            step3Icon: document.getElementById('step-3-icon')
+        };
+
+        // Initialize from local storage
+        if (localStorage.getItem('sud_diagnostic_url')) {
+            DOM.url.value = localStorage.getItem('sud_diagnostic_url');
+        }
+
+        // Terminal Logging System
+        function log(message, type = 'INFO') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 2 });
+            
+            let colorClass = 'text-gray-400';
+            let prefix = '[INFO]';
+            
+            switch(type) {
+                case 'SUCCESS': colorClass = 'text-brand-500'; prefix = '[SUCC]'; break;
+                case 'WARN': colorClass = 'text-yellow-400'; prefix = '[WARN]'; break;
+                case 'ERROR': colorClass = 'text-red-400'; prefix = '[FAIL]'; break;
+                case 'HTTP': colorClass = 'text-blue-400'; prefix = '[NETW]'; break;
+            }
+
+            const html = `
+                <div class="terminal-line opacity-0 animate-[fadeIn_0.3s_ease-out_forwards]">
+                    <span class="text-gray-600 select-none">${time}</span>
+                    <span class="${colorClass} break-words"><span class="mr-2 font-bold">${prefix}</span>${message}</span>
+                </div>
+            `;
+            
+            DOM.terminal.insertAdjacentHTML('beforeend', html);
+            DOM.terminal.scrollTop = DOM.terminal.scrollHeight;
+        }
+
+        DOM.btnClear.addEventListener('click', () => { DOM.terminal.innerHTML = ''; });
+
+        // Add custom fade-in animation for logs
+        document.head.insertAdjacentHTML('beforeend', `<style>@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }</style>`);
+
+        log("Diagnostic environment initialized.", "INFO");
+        log("Awaiting target endpoint...", "INFO");
+
+        // Set UI Status
+        function setStatus(state) {
+            DOM.badge.className = 'flex items-center gap-2 px-4 py-2 rounded-full font-mono text-sm font-medium transition-colors duration-300';
+            DOM.badgeDot.className = 'w-2 h-2 rounded-full';
+            
+            if (state === 'TESTING') {
+                DOM.badge.classList.add('bg-blue-500/10', 'border', 'border-blue-500/20', 'text-blue-400');
+                DOM.badgeDot.classList.add('bg-blue-500', 'animate-pulse');
+                DOM.badgeText.innerText = 'PINGING...';
+                DOM.valLatency.innerText = '--';
+            } else if (state === 'SUCCESS') {
+                DOM.badge.classList.add('bg-brand-500/10', 'border', 'border-brand-500/20', 'text-brand-500');
+                DOM.badgeDot.classList.add('bg-brand-500', 'shadow-[0_0_8px_rgba(0,255,136,0.8)]');
+                DOM.badgeText.innerText = 'UPLINK STABLE';
+            } else {
+                DOM.badge.classList.add('bg-red-500/10', 'border', 'border-red-500/20', 'text-red-400');
+                DOM.badgeDot.classList.add('bg-red-500', 'shadow-[0_0_8px_rgba(239,68,68,0.8)]');
+                DOM.badgeText.innerText = 'UPLINK FAILED';
+                DOM.valIntegrity.innerText = 'ERROR';
+                DOM.valIntegrity.className = 'text-lg font-bold text-red-500 mt-1';
+            }
+        }
+
+        // Main Fetch Engine
+        async function executePing(forceBust = false) {
+            const url = DOM.url.value.trim();
+            if (!url) {
+                log("Abort: Target URL is empty.", "ERROR");
+                return;
+            }
+
+            localStorage.setItem('sud_diagnostic_url', url);
+            setStatus('TESTING');
+            
+            // UI Button state
+            DOM.btnTest.disabled = true; DOM.btnBust.disabled = true;
+            DOM.btnTest.classList.add('opacity-50'); DOM.btnBust.classList.add('opacity-50');
+
+            const urlObj = new URL(url);
+            urlObj.searchParams.set('origin', 'https://worldcup.sudstudy.com'); // Match backend requirements
+            
+            if (forceBust) {
+                const token = Math.random().toString(36).substring(2, 10);
+                urlObj.searchParams.set('cb', token);
+                log(`Initiating Cache Bust sequence. Bypass token: [${token}]`, "WARN");
+                DOM.step3Icon.classList.add('bg-brand-500', 'text-gray-900'); // Highlight protocol step
+            } else {
+                log(`Initiating standard request to Edge Cache...`, "HTTP");
+                DOM.step2Icon.classList.add('bg-brand-500', 'text-gray-900'); // Highlight protocol step
+            }
+
+            const startTime = performance.now();
+
+            try {
+                const response = await fetch(urlObj.toString(), {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                const latency = Math.round(performance.now() - startTime);
+                DOM.valLatency.innerText = latency;
+
+                if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+
+                const payload = await response.json();
+                
+                log(`Response received in ${latency}ms. Validating payload...`, "HTTP");
+
+                // Validate specific Sudstudy Engine Schema
+                if (payload.matches && payload.cultureDB && payload.hostDB && payload.hubDB) {
+                    setStatus('SUCCESS');
+                    log(`Schema verified. Databases detected: Matches(${payload.matches.length}), Culture, Host, Hub.`, "SUCCESS");
+                    
+                    DOM.valIntegrity.innerText = forceBust ? 'FRESH DATA' : 'CACHED DATA';
+                    DOM.valIntegrity.className = `text-lg font-bold mt-1 ${forceBust ? 'text-brand-500' : 'text-blue-400'}`;
+
+                    // Log a sample for easy visual verification
+                    const firstMatch = payload.matches[0];
+                    if(firstMatch) {
+                        log(`Sample Data -> [${firstMatch.MatchID}] ${firstMatch.TeamA} vs ${firstMatch.TeamB}`, "INFO");
+                    }
+
+                } else {
+                    throw new Error("Payload does not match required schema (missing cultureDB/hostDB/hubDB).");
+                }
+
+            } catch (err) {
+                setStatus('FAILED');
+                log(`Connection Failed: ${err.message}`, "ERROR");
+                
+                if(err.message.includes('CORS') || err.message.includes('Failed to fetch')) {
+                    log(`CORS Preflight Advice: Ensure your Web App is deployed as 'Execute as: Me' and 'Access: Anyone'.`, "WARN");
+                }
+            } finally {
+                // Restore buttons
+                DOM.btnTest.disabled = false; DOM.btnBust.disabled = false;
+                DOM.btnTest.classList.remove('opacity-50'); DOM.btnBust.classList.remove('opacity-50');
+            }
+        }
+
+        // Event Listeners
+        DOM.btnTest.addEventListener('click', () => executePing(false));
+        DOM.btnBust.addEventListener('click', () => executePing(true));
+
+    </script>
+</body>
+</html>
