@@ -1,0 +1,530 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SUDSTUDY - The Affiliation Protocol. Transforming tribalism into structural peacebuilding.">
+    <title>SUDSTUDY | Affiliation Protocol Dashboard</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Changa:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        deep: '#050511',
+                        panel: '#0a0a1a',
+                        card: 'rgba(20, 20, 40, 0.7)',
+                        gold: {
+                            primary: '#D4AF37',
+                            hover: '#F2D06B',
+                        }
+                    },
+                    fontFamily: {
+                        main: ['Changa', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'flag-wave': 'wave 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        wave: {
+                            '0%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(-5deg) scale(1.05)' },
+                            '75%': { transform: 'rotate(5deg) scale(1.05)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050511;
+            color: #ffffff;
+            font-family: 'Changa', sans-serif;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* Ambient Glows */
+        .glow-sphere {
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: rgba(10, 10, 26, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(135deg, #ffffff 30%, #D4AF37 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .number-highlight {
+            color: #D4AF37;
+            font-weight: 800;
+            background: rgba(212, 175, 55, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050511; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+        /* Tabs System */
+        .tab-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+        .tab-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+            animation: cardEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        @keyframes cardEntrance {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0; width: 0; height: 2px;
+            background: #D4AF37;
+            transition: width 0.3s ease;
+        }
+        .tab-btn.active {
+            color: #D4AF37;
+            background: rgba(212, 175, 55, 0.1);
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        .tab-btn.active::after {
+            width: 100%;
+        }
+
+        /* Flag Image Styling */
+        .persona-flag {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5), 0 0 15px rgba(212, 175, 55, 0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-gold-primary selection:text-deep">
+
+    <!-- Ambient Backgrounds -->
+    <div class="fixed top-0 left-1/4 w-[500px] h-[500px] rounded-full glow-sphere bg-yellow-600/10"></div>
+    <div class="fixed bottom-0 right-1/4 w-[600px] h-[600px] rounded-full glow-sphere bg-blue-900/10"></div>
+
+    <!-- Header / Nav -->
+    <header class="w-full py-5 px-6 md:px-12 border-b border-white/5 flex justify-between items-center relative z-50 bg-[#050511]/80 backdrop-blur-md">
+        <a href="index.html" class="text-2xl font-black tracking-widest uppercase flex items-center gap-2">
+            SUD<span class="text-gold-primary">STUDY</span>
+        </a>
+        <div class="flex items-center gap-4 text-xs font-mono text-gray-500 uppercase tracking-widest">
+            <i class="fa-solid fa-satellite-dish animate-pulse text-gold-primary"></i> Executive Dashboard
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-16 relative z-10">
+        
+        <!-- Hero Section -->
+        <div class="text-center mb-20 relative">
+            <span class="text-gold-primary uppercase tracking-[0.2em] font-bold text-sm mb-4 block">Strategic Architecture</span>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6">
+                <span class="block">The Affiliation</span>
+                <span class="font-serif italic text-gradient block mt-2">Protocol</span>
+            </h1>
+            <p class="text-xl md:text-2xl text-gray-400 max-w-4xl mx-auto leading-relaxed font-light">
+                Transforming the intense tribalism of global sports fandom into actionable structural peacebuilding architectures for Dubai's <span class="number-highlight">88.5%</span> expatriate majority.
+            </p>
+        </div>
+
+        <!-- Engine Core Modules Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24">
+            
+            <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300 border-t border-t-gold-primary/50 group">
+                <div class="w-12 h-12 rounded-xl bg-gold-primary/10 flex items-center justify-center text-gold-primary text-xl mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-book-atlas"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-white">Knowledge Starter Kit <span class="text-gold-primary text-sm">(KSK)</span></h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Baselines cultural understanding and historical grievances to disarm militant responses preemptively before conflict triggers.</p>
+            </div>
+
+            <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300 border-t border-t-gold-primary/50 group">
+                <div class="w-12 h-12 rounded-xl bg-gold-primary/10 flex items-center justify-center text-gold-primary text-xl mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-photo-film"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-white">Customized Ed. Content <span class="text-gold-primary text-sm">(CEC)</span></h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Tailored digital media infiltrating toxic echo chambers to establish mutual respect during high-stakes live match syncs.</p>
+            </div>
+
+            <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300 border-t border-t-gold-primary/50 group">
+                <div class="w-12 h-12 rounded-xl bg-gold-primary/10 flex items-center justify-center text-gold-primary text-xl mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-language"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3 text-white">FLang Integration</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Classifies localized community slang into priority tiers to bypass psychological barriers and mediate effectively in real-time.</p>
+            </div>
+            
+        </div>
+
+        <!-- Interactive Persona Dashboard -->
+        <div class="mb-10 text-center">
+            <h2 class="text-3xl font-black mb-2 text-white">Demographic Personas & Affiliations</h2>
+            <p class="text-gray-500 text-sm">Select a demographic module to analyze parameters and World Cup metrics.</p>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div class="glass-panel rounded-3xl p-2 md:p-4 mb-8 flex flex-wrap justify-center gap-2 max-w-5xl mx-auto border-white/5">
+            <button class="tab-btn active px-4 py-2 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-400 hover:text-white border border-transparent" onclick="openTab(event, 'Indian')">Indian</button>
+            <button class="tab-btn px-4 py-2 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-400 hover:text-white border border-transparent" onclick="openTab(event, 'Pakistani')">Pakistani</button>
+            <button class="tab-btn px-4 py-2 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-400 hover:text-white border border-transparent" onclick="openTab(event, 'Bangladeshi')">Bangladeshi</button>
+            <button class="tab-btn px-4 py-2 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-400 hover:text-white border border-transparent" onclick="openTab(event, 'Filipino')">Filipino</button>
+            <button class="tab-btn px-4 py-2 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-400 hover:text-white border border-transparent" onclick="openTab(event, 'Egyptian')">Egyptian</button>
+            <button class="tab-btn px-4 py-2 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-400 hover:text-white border border-transparent" onclick="openTab(event, 'Moroccan')">Moroccan</button>
+            <button class="tab-btn px-4 py-2 md:px-6 md:py-3 rounded-xl text-xs md:text-sm font-bold text-gray-400 hover:text-white border border-transparent" onclick="openTab(event, 'Saudi')">Saudi</button>
+        </div>
+
+        <!-- Dashboard Content Area -->
+        <div class="glass-panel rounded-3xl p-8 md:p-12 relative overflow-hidden">
+            
+            <!-- Abstract Graphic -->
+            <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none text-9xl">
+                <i class="fa-solid fa-fingerprint"></i>
+            </div>
+
+            <!-- Tab 1: Indian -->
+            <div id="Indian" class="tab-content active">
+                <div class="flex flex-col md:flex-row items-center gap-8 mb-10 border-b border-white/10 pb-8">
+                    <img src="https://flagcdn.com/w160/in.png" alt="India Flag" class="w-32 rounded-lg persona-flag animate-flag-wave object-cover aspect-video">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-3">The Indian Persona</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">38.45% OF POPULATION</span>
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">4.36M INDIVIDUALS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-gold-primary"></i> Economic Dominance</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Massive domestic real estate footprint with investment budgets ranging from <span class="number-highlight">500k to 1.5M AED</span> in neighborhoods like Deira and Bur Dubai.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-users text-gold-primary"></i> Tribal Affiliation</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Cricket functions as the ultimate unifying socio-cultural religion. The India-Pakistan rivalry is a high-stakes proxy for geopolitical conflict.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-comments text-gold-primary"></i> FLang Markers</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed"><span class="text-white font-semibold">"Mauka Mauka"</span> (Opportunity) reframed for CEC as the shared economic opportunity both nationalities pursue in the UAE. <span class="text-white font-semibold">"Shaam tak khelenge"</span> (Endurance/Resilience).</p>
+                        </div>
+                        
+                        <div class="bg-black/40 border-l-4 border-gold-primary rounded-r-xl p-5 shadow-inner hover:bg-black/60 transition-colors">
+                            <h4 class="text-gold-primary font-bold uppercase tracking-widest text-xs mb-2"><i class="fa-solid fa-earth-americas mr-1"></i> Regional Affiliation Metric</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">During the 2026 World Cup, without India in the tournament, massive portions of this demographic threw their absolute support behind the <span class="text-white font-bold">Saudi Arabian</span> and <span class="text-white font-bold">Moroccan</span> national teams. Cheering for the Green Falcons and Atlas Lions became a vital display of host-region gratitude and solidarity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Pakistani -->
+            <div id="Pakistani" class="tab-content">
+                <div class="flex flex-col md:flex-row items-center gap-8 mb-10 border-b border-white/10 pb-8">
+                    <img src="https://flagcdn.com/w160/pk.png" alt="Pakistan Flag" class="w-32 rounded-lg persona-flag animate-flag-wave object-cover aspect-video">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-3">The Pakistani Persona</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">16.72% OF POPULATION</span>
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">FOUNDATIONAL WORKFORCE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-helmet-safety text-gold-primary"></i> Economic Backbone</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Dominating construction, public works, logistics, and transportation across the Emirate.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-fire text-gold-primary"></i> Tribal Affiliation</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Defined by exceptional resilience and fierce nationalism tied to cricket. Frequent emotional volatility requires culturally empathetic de-escalation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-comments text-gold-primary"></i> FLang Markers</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed"><span class="text-white font-semibold">"Pakistan Zindabad"</span> (Long Live Pakistan). <span class="text-white font-semibold">"Jeetay ga bhai jeetay ga"</span>. Redirecting this phrase into collaborative labor success stories effectively bypasses psychological resistance.</p>
+                        </div>
+                        
+                        <div class="bg-black/40 border-l-4 border-gold-primary rounded-r-xl p-5 shadow-inner hover:bg-black/60 transition-colors">
+                            <h4 class="text-gold-primary font-bold uppercase tracking-widest text-xs mb-2"><i class="fa-solid fa-earth-americas mr-1"></i> Regional Affiliation Metric</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">Much like the Indian diaspora, Pakistani fans actively rallied behind MENA representatives in 2026. Their deep connection to <span class="text-white font-bold">Saudi Arabia</span> via religious and employment ties made the Saudi national team a de facto home team, proving that sports fandom crosses ethnic borders in the UAE.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Bangladeshi -->
+            <div id="Bangladeshi" class="tab-content">
+                <div class="flex flex-col md:flex-row items-center gap-8 mb-10 border-b border-white/10 pb-8">
+                    <img src="https://flagcdn.com/w160/bd.png" alt="Bangladesh Flag" class="w-32 rounded-lg persona-flag animate-flag-wave object-cover aspect-video">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-3">The Bangladeshi Persona</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">7.4% OF POPULATION</span>
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">ORGANIZED DIPLOMACY</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-industry text-gold-primary"></i> Economic Utility</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Heavily centralized in labor-centric accommodations and industrial zones for support services and maintenance.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-handshake text-gold-primary"></i> Tribal Affiliation</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Less adversarial. Organized sports are used heavily for community building, such as the UAE Embassy of Bangladesh's "Sports Day".</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-chess-knight text-gold-primary"></i> Strategic Intervention</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Deploying the KSK to empower youth and laborers through inter-camp leagues via the UAE Sports for All Federation.</p>
+                        </div>
+                        
+                        <div class="bg-black/40 border-l-4 border-gold-primary rounded-r-xl p-5 shadow-inner hover:bg-black/60 transition-colors">
+                            <h4 class="text-gold-primary font-bold uppercase tracking-widest text-xs mb-2"><i class="fa-solid fa-earth-americas mr-1"></i> Regional Affiliation Metric</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">This group consistently mirrors the broader South Asian trend of supporting <span class="text-white font-bold">MENA nations</span> in global tournaments, effectively cementing their integration into the wider Middle Eastern social fabric.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Filipino -->
+            <div id="Filipino" class="tab-content">
+                <div class="flex flex-col md:flex-row items-center gap-8 mb-10 border-b border-white/10 pb-8">
+                    <img src="https://flagcdn.com/w160/ph.png" alt="Philippines Flag" class="w-32 rounded-lg persona-flag animate-flag-wave object-cover aspect-video">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-3">The Filipino Persona</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">6.9% OF POPULATION</span>
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">SERVICE DOMINANCE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-concierge-bell text-gold-primary"></i> Service Sector</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Dominating hospitality, healthcare, tourism, and domestic services throughout the city.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-basketball text-gold-primary"></i> Tribal Affiliation</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Fanatical devotion to basketball (PBA, BCL Asia) acting as the primary mechanism for community bonding in neighborhoods like Satwa and Karama.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-comments text-gold-primary"></i> FLang Markers</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed"><span class="text-white font-semibold">"Kabayan"</span> (Countryman) is a universal greeting. Systematically injecting this term manufactures a baseline of non-aggression. <span class="text-white font-semibold">"Ate/Kuya"</span> are universally adopted terms of respect.</p>
+                        </div>
+                        
+                        <div class="bg-black/40 border-l-4 border-gold-primary rounded-r-xl p-5 shadow-inner hover:bg-black/60 transition-colors">
+                            <h4 class="text-gold-primary font-bold uppercase tracking-widest text-xs mb-2"><i class="fa-solid fa-earth-americas mr-1"></i> Regional Affiliation Metric</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">As the most culturally transmissive group (via terms like "Kabayan"), their vocal support for Gulf and Arab sporting events serves as an organic metric for non-MENA social blending and empathy within Dubai.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Egyptian -->
+            <div id="Egyptian" class="tab-content">
+                <div class="flex flex-col md:flex-row items-center gap-8 mb-10 border-b border-white/10 pb-8">
+                    <img src="https://flagcdn.com/w160/eg.png" alt="Egypt Flag" class="w-32 rounded-lg persona-flag animate-flag-wave object-cover aspect-video">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-3">The Egyptian Persona</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">4.2% OF POPULATION</span>
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">WHITE-COLLAR INFLUENCE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-building text-gold-primary"></i> Economic Footprint</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Integrated heavily into the UAE's education, media, and engineering sectors.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-futbol text-gold-primary"></i> Tribal Affiliation</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Defined by the fierce Al Ahly vs. Zamalek football rivalry. The UAE frequently hosts the Egyptian Super Cup, importing this intense passion directly into the Emirates.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-comments text-gold-primary"></i> FLang Markers</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed"><span class="text-white font-semibold">"Ahlawy" / "Zamalekawy"</span> (Identity markers). <span class="text-white font-semibold">"SHOOft el MAWTCH imBAREuh?"</span> (Did you watch the match yesterday?): The ultimate social icebreaker and tribal probe.</p>
+                        </div>
+                        
+                        <div class="bg-black/40 border-l-4 border-gold-primary rounded-r-xl p-5 shadow-inner hover:bg-black/60 transition-colors">
+                            <h4 class="text-gold-primary font-bold uppercase tracking-widest text-xs mb-2"><i class="fa-solid fa-earth-americas mr-1"></i> Regional Affiliation (Pan-Arab)</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">In a stunning display of regional affiliation during the 2026 World Cup, following Egypt's tragic <span class="number-highlight">3-2</span> defeat to Argentina in the Round of 16, Egyptian fans immediately redirected their immense fervor toward supporting <span class="text-white font-bold">Morocco</span>. This cross-pollination of support measures high Pan-Arab solidarity.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 6: Moroccan -->
+            <div id="Moroccan" class="tab-content">
+                <div class="flex flex-col md:flex-row items-center gap-8 mb-10 border-b border-white/10 pb-8">
+                    <img src="https://flagcdn.com/w160/ma.png" alt="Morocco Flag" class="w-32 rounded-lg persona-flag animate-flag-wave object-cover aspect-video">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-3">The Moroccan Persona</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">~100,000 INDIVIDUALS</span>
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">CULTURAL CONNECTORS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-bridge-water text-gold-primary"></i> Economic Footprint</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Highly engaged in tourism, trade, and the creative sectors, building significant cultural bridges between North Africa and the Gulf.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-lion text-gold-primary"></i> Tribal Affiliation</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">The "Atlas Lions" represent a unifying force. Their continuous over-performance on the global stage makes them the absolute pride of the entire MENA region.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-comments text-gold-primary"></i> FLang Markers</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed"><span class="text-white font-semibold">"Dima Maghrib"</span> (Always Morocco). This phrase transcends nationality during tournaments, becoming a rallying cry for the entire Arab diaspora in Dubai.</p>
+                        </div>
+                        
+                        <div class="bg-black/40 border-l-4 border-gold-primary rounded-r-xl p-5 shadow-inner hover:bg-black/60 transition-colors">
+                            <h4 class="text-gold-primary font-bold uppercase tracking-widest text-xs mb-2"><i class="fa-solid fa-earth-americas mr-1"></i> Regional Affiliation (The Unifiers)</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">During the 2026 World Cup quarter-finals against France, Morocco did not just represent their own citizens in the UAE; they became the host team for millions of Egyptians, Saudis, and South Asians. They are the ultimate metric of pan-regional unification.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: Saudi -->
+            <div id="Saudi" class="tab-content">
+                <div class="flex flex-col md:flex-row items-center gap-8 mb-10 border-b border-white/10 pb-8">
+                    <img src="https://flagcdn.com/w160/sa.png" alt="Saudi Arabia Flag" class="w-32 rounded-lg persona-flag animate-flag-wave object-cover aspect-video">
+                    <div>
+                        <h2 class="text-4xl font-black text-white mb-3">The Saudi Persona</h2>
+                        <div class="flex flex-wrap gap-3">
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">~85,000 INDIVIDUALS</span>
+                            <span class="px-3 py-1 rounded-full bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-xs font-bold font-mono">REGIONAL HEAVYWEIGHTS</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-money-bill-trend-up text-gold-primary"></i> Economic Footprint</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">While a smaller demographic footprint in Dubai compared to Asians, Saudis command massive economic, investment, and diplomatic influence.</p>
+                        </div>
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-falcon text-gold-primary"></i> Tribal Affiliation</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">The <span class="text-white font-bold">Green Falcons</span> are a cornerstone of Gulf pride, famously causing monumental upsets that resonate across the Islamic world.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-white font-bold uppercase tracking-widest text-sm mb-2 flex items-center gap-2"><i class="fa-solid fa-handshake-angle text-gold-primary"></i> Strategic Intervention</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">Saudi sports success acts as an amplifier. When they win, economic confidence and consumer spending across all demographics in Dubai see a measurable short-term spike.</p>
+                        </div>
+                        
+                        <div class="bg-black/40 border-l-4 border-gold-primary rounded-r-xl p-5 shadow-inner hover:bg-black/60 transition-colors">
+                            <h4 class="text-gold-primary font-bold uppercase tracking-widest text-xs mb-2"><i class="fa-solid fa-earth-americas mr-1"></i> Regional Affiliation (Surrogate Home)</h4>
+                            <p class="text-gray-300 text-sm leading-relaxed">Saudi Arabia's World Cup campaigns measure the depth of integration for non-Arabs. Thousands of long-term expatriates from India, Pakistan, and the Philippines publicly rally behind the Green Falcons, viewing Saudi and UAE sporting success as a reflection of their own prosperity in the region.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="border-t border-white/5 py-8 text-center text-xs text-gray-600 font-mono tracking-widest relative z-10 bg-[#020205]">
+        &copy; 2026 SUDSTUDY. THE AFFILIATION PROTOCOL.
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Hide all tab content
+            const tabcontent = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].classList.remove("active");
+            }
+            
+            // Remove active class from all buttons
+            const tablinks = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+            
+            // Show the current tab, and add an "active" class to the button that opened the tab
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+</body>
+</html>
