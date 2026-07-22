@@ -1,0 +1,506 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey of Harmony 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #050608; font-family: 'Inter', sans-serif; }
+        #app-container { width: 100vw; height: 100vh; position: relative; display: flex; flex-direction: column; }
+        
+        #bracket-container { 
+            width: 100%; height: calc(100% - 120px); 
+            display: flex; justify-content: space-between; position: relative; 
+            padding: 20px 40px; box-sizing: border-box; overflow: hidden;
+        }
+
+        #narration-box { 
+            height: 120px; width: 100%; background: #0d1117; border-top: 2px solid #222; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: absolute; bottom: 0; z-index: 50; box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+        }
+        #narration-title { margin: 0 0 5px; color: #d4af37; font-size: 16px; text-transform: uppercase; letter-spacing: 3px; font-weight: 900; }
+        #narration-text { margin: 0 0 15px; color: #fff; font-size: 18px; font-weight: 400; }
+        button {
+            background: #d4af37; border: none; color: #000; padding: 10px 30px; font-size: 16px; font-weight: 900; 
+            text-transform: uppercase; letter-spacing: 1px; border-radius: 30px; cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+        button:hover { background: #fff; transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 255, 255, 0.6); }
+        button:disabled { background: #444; color: #222; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        .bracket-half { width: 44%; display: flex; justify-content: space-between; z-index: 2; }
+        .bracket-half.right { flex-direction: row-reverse; }
+        .col { display: flex; flex-direction: column; justify-content: space-around; height: 100%; flex: 1; align-items: center; }
+        
+        .match-box { display: flex; flex-direction: column; justify-content: space-between; width: 100%; }
+        .col.r32 .match-box { height: 60px; margin: 10px 0; }
+        .col.r16 .match-box { height: 160px; }
+        .col.qf .match-box { height: 320px; }
+        .col.sf .match-box { height: 600px; justify-content: center; }
+        .col.final { justify-content: center; width: 12%; z-index: 2; }
+
+        .team-slot {
+            width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.02); margin: 0 auto;
+        }
+
+        #lines-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .match-line { stroke: rgba(212, 175, 55, 0.15); stroke-width: 2px; fill: none; transition: stroke 0.5s ease, stroke-width 0.5s ease; }
+        .match-line.active { stroke: #00e676; stroke-width: 4px; filter: drop-shadow(0 0 8px rgba(0, 230, 118, 0.8)); z-index: 5; }
+
+        #teams-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        
+        .team-avatar {
+            position: absolute; width: 44px; height: 44px; border-radius: 50%; background: #111;
+            border: 2px solid #d4af37; z-index: 10; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8); transition: left 1.5s cubic-bezier(0.25, 1, 0.5, 1), top 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        .flag-text { font-size: 24px; z-index: 2; position: relative; }
+        .team-label {
+            position: absolute; bottom: -22px; font-size: 11px; color: #fff; font-weight: 700;
+            text-shadow: 0 2px 4px #000; white-space: nowrap; text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .team-avatar.defeated { filter: grayscale(100%); opacity: 0.3; transform: translate(-50%, -50%) scale(0.6) !important; z-index: 5; transition: all 1s ease; }
+        .champion-glow { border-color: #00e676; box-shadow: 0 0 60px #00e676, inset 0 0 20px #00e676; z-index: 1000; }
+
+        .orbit-galaxy { position: absolute; top: 50%; left: 50%; width: 0; height: 0; z-index: 1; pointer-events: none; }
+        
+        .orbit-wrapper { position: absolute; top: 50%; left: 50%; width: 0; height: 0; }
+        .spin-cw { animation: spin var(--speed) linear infinite; }
+        .spin-ccw { animation: spin-rev var(--speed) linear infinite; }
+        
+        .orb-translator { position: absolute; top: 0; left: 0; }
+        .supporter-orb { 
+            position: absolute; width: 18px; height: 18px; top: -9px; left: -9px;
+            display: flex; align-items: center; justify-content: center; font-size: 14px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+        }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes spin-rev { 100% { transform: rotate(-360deg); } }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        <div id="bracket-container">
+            <svg id="lines-layer"></svg>
+            <div id="teams-layer"></div>
+            
+            <div class="bracket-half left" id="left-half"></div>
+            
+            <div class="col center final" id="center-col">
+                <div class="match-box" id="match-FINAL" style="height: 100%; align-items: center;">
+                    <div class="team-slot" id="slot-FINAL-center" style="width: 80px; height: 80px; border-color: #d4af37;"></div>
+                </div>
+            </div>
+            
+            <div class="bracket-half right" id="right-half"></div>
+        </div>
+        
+        <div id="narration-box">
+            <h2 id="narration-title">Initialization Sequence</h2>
+            <p id="narration-text">Mapping group stage parameters and cultural support matrices...</p>
+            <button id="btn-next" onclick="simulateNextRound()">Commence Round of 16</button>
+        </div>
+    </div>
+
+    <script>
+        const flags = {
+            "Mexico": "🇲🇽", "South Africa": "🇿🇦", "South Korea": "🇰🇷", "Czechia": "🇨🇿",
+            "Switzerland": "🇨🇭", "Canada": "🇨🇦", "Bosnia-Herzegovina": "🇧🇦", "Qatar": "🇶🇦",
+            "Brazil": "🇧🇷", "Morocco": "🇲🇦", "Scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "Haiti": "🇭🇹",
+            "USA": "🇺🇸", "Australia": "🇦🇺", "Paraguay": "🇵🇾", "Türkiye": "🇹🇷",
+            "Germany": "🇩🇪", "Ivory Coast": "🇨🇮", "Ecuador": "🇪🇨", "Curaçao": "🇨🇼",
+            "Netherlands": "🇳🇱", "Japan": "🇯🇵", "Sweden": "🇸🇪", "Tunisia": "🇹🇳",
+            "Belgium": "🇧🇪", "Egypt": "🇪🇬", "Iran": "🇮🇷", "New Zealand": "🇳🇿",
+            "Spain": "🇪🇸", "Cape Verde": "🇨🇻", "Uruguay": "🇺🇾", "Saudi Arabia": "🇸🇦",
+            "France": "🇫🇷", "Norway": "🇳🇴", "Senegal": "🇸🇳", "Iraq": "🇮🇶",
+            "Argentina": "🇦🇷", "Austria": "🇦🇹", "Algeria": "🇩🇿", "Jordan": "🇯🇴",
+            "Colombia": "🇨🇴", "Portugal": "🇵🇹", "Congo DR": "🇨🇩", "Uzbekistan": "🇺🇿",
+            "England": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "Croatia": "🇭🇷", "Ghana": "🇬🇭", "Panama": "🇵🇦"
+        };
+
+        const groupsDB = {
+            "A": ["Mexico", "South Africa", "South Korea", "Czechia"],
+            "B": ["Switzerland", "Canada", "Bosnia-Herzegovina", "Qatar"],
+            "C": ["Brazil", "Morocco", "Scotland", "Haiti"],
+            "D": ["USA", "Australia", "Paraguay", "Türkiye"],
+            "E": ["Germany", "Ivory Coast", "Ecuador", "Curaçao"],
+            "F": ["Netherlands", "Japan", "Sweden", "Tunisia"],
+            "G": ["Belgium", "Egypt", "Iran", "New Zealand"],
+            "H": ["Spain", "Cape Verde", "Uruguay", "Saudi Arabia"],
+            "I": ["France", "Norway", "Senegal", "Iraq"],
+            "J": ["Argentina", "Austria", "Algeria", "Jordan"],
+            "K": ["Colombia", "Portugal", "Congo DR", "Uzbekistan"],
+            "L": ["England", "Croatia", "Ghana", "Panama"]
+        };
+
+        let teamSupporters = {};
+        Object.values(groupsDB).forEach(group => {
+            group.forEach((team, index) => {
+                teamSupporters[team] = group.slice(index + 1);
+            });
+        });
+
+        const bracket = [
+            {
+                round: "Round of 32",
+                matches: [
+                    { id: "L1", p1: "France", p2: "Sweden", winner: "France", side: "L" },
+                    { id: "L2", p1: "Ivory Coast", p2: "Norway", winner: "Ivory Coast", side: "L" },
+                    { id: "L3", p1: "Brazil", p2: "Japan", winner: "Brazil", side: "L" },
+                    { id: "L4", p1: "Canada", p2: "South Africa", winner: "Canada", side: "L" },
+                    { id: "L5", p1: "Spain", p2: "Austria", winner: "Spain", side: "L" },
+                    { id: "L6", p1: "Portugal", p2: "Croatia", winner: "Portugal", side: "L" },
+                    { id: "L7", p1: "Morocco", p2: "Netherlands", winner: "Morocco", side: "L" },
+                    { id: "L8", p1: "Paraguay", p2: "Germany", winner: "Paraguay", side: "L" },
+                    
+                    { id: "R1", p1: "Argentina", p2: "Cape Verde", winner: "Argentina", side: "R" },
+                    { id: "R2", p1: "Switzerland", p2: "Algeria", winner: "Switzerland", side: "R" },
+                    { id: "R3", p1: "Colombia", p2: "Ghana", winner: "Colombia", side: "R" },
+                    { id: "R4", p1: "Egypt", p2: "Australia", winner: "Egypt", side: "R" },
+                    { id: "R5", p1: "England", p2: "Congo DR", winner: "England", side: "R" },
+                    { id: "R6", p1: "Senegal", p2: "Belgium", winner: "Senegal", side: "R" },
+                    { id: "R7", p1: "USA", p2: "Bosnia-Herzegovina", winner: "USA", side: "R" },
+                    { id: "R8", p1: "Mexico", p2: "Ecuador", winner: "Mexico", side: "R" }
+                ]
+            },
+            {
+                round: "Round of 16",
+                matches: [
+                    { id: "L9", p1: "L1", p2: "L2", winner: "France", side: "L" },
+                    { id: "L10", p1: "L3", p2: "L4", winner: "Brazil", side: "L" },
+                    { id: "L11", p1: "L5", p2: "L6", winner: "Spain", side: "L" },
+                    { id: "L12", p1: "L7", p2: "L8", winner: "Morocco", side: "L" },
+                    
+                    { id: "R9", p1: "R1", p2: "R2", winner: "Argentina", side: "R" },
+                    { id: "R10", p1: "R3", p2: "R4", winner: "Colombia", side: "R" },
+                    { id: "R11", p1: "R5", p2: "R6", winner: "England", side: "R" },
+                    { id: "R12", p1: "R7", p2: "R8", winner: "USA", side: "R" }
+                ]
+            },
+            {
+                round: "Quarter-Finals",
+                matches: [
+                    { id: "L13", p1: "L9", p2: "L10", winner: "France", side: "L" },
+                    { id: "L14", p1: "L11", p2: "L12", winner: "Spain", side: "L" },
+                    
+                    { id: "R13", p1: "R9", p2: "R10", winner: "Argentina", side: "R" },
+                    { id: "R14", p1: "R11", p2: "R12", winner: "England", side: "R" }
+                ]
+            },
+            {
+                round: "Semi-Finals",
+                matches: [
+                    { id: "L15", p1: "L13", p2: "L14", winner: "Spain", side: "L" },
+                    { id: "R15", p1: "R13", p2: "R14", winner: "Argentina", side: "R" }
+                ]
+            },
+            {
+                round: "World Cup Final",
+                matches: [
+                    { id: "FINAL", p1: "L15", p2: "R15", winner: "Spain", side: "C" }
+                ]
+            }
+        ];
+
+        function createColumn(matches, phase, side) {
+            const col = document.createElement('div');
+            col.className = `col ${side} ${phase}`;
+            matches.forEach(m => {
+                const box = document.createElement('div');
+                box.className = 'match-box';
+                box.id = `match-${m.id}`;
+                
+                const topSlot = document.createElement('div');
+                topSlot.className = 'team-slot';
+                topSlot.id = `slot-${m.id}-top`;
+                
+                const botSlot = document.createElement('div');
+                botSlot.className = 'team-slot';
+                botSlot.id = `slot-${m.id}-bot`;
+                
+                box.appendChild(topSlot);
+                if (phase !== 'sf' || side === 'left') box.appendChild(botSlot); // formatting tweak for sf
+                col.appendChild(box);
+            });
+            return col;
+        }
+
+        function renderColumns() {
+            const leftHalf = document.getElementById('left-half');
+            const rightHalf = document.getElementById('right-half');
+            const phases = ['r32', 'r16', 'qf', 'sf'];
+            
+            phases.forEach((phase, idx) => {
+                leftHalf.appendChild(createColumn(bracket[idx].matches.filter(m => m.side === 'L'), phase, 'left'));
+                rightHalf.appendChild(createColumn(bracket[idx].matches.filter(m => m.side === 'R'), phase, 'right'));
+            });
+        }
+
+        function getCoords(el) {
+            const rect = el.getBoundingClientRect();
+            const containerRect = document.getElementById('bracket-container').getBoundingClientRect();
+            return {
+                x: rect.left - containerRect.left + rect.width / 2,
+                y: rect.top - containerRect.top + rect.height / 2
+            };
+        }
+
+        function connectEls(el1, el2, lineId, isRightSide) {
+            const p1 = getCoords(el1);
+            const p2 = getCoords(el2);
+            
+            const cpX1 = p1.x + (isRightSide ? -40 : 40);
+            const cpX2 = p2.x + (isRightSide ? 40 : -40);
+            
+            const d = `M ${p1.x},${p1.y} C ${cpX1},${p1.y} ${cpX2},${p2.y} ${p2.x},${p2.y}`;
+            
+            const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute('d', d);
+            path.setAttribute('id', `line-${lineId}`);
+            path.classList.add('match-line');
+            document.getElementById('lines-layer').appendChild(path);
+        }
+
+        function drawBracketLines() {
+            document.getElementById('lines-layer').innerHTML = '';
+            bracket.forEach((round, rIdx) => {
+                if (rIdx === 0) return; // R32 has no incoming lines
+                round.matches.forEach(m => {
+                    const source1 = document.getElementById(`match-${m.p1}`);
+                    const source2 = document.getElementById(`match-${m.p2}`);
+                    
+                    const targetTop = m.side === 'C' ? document.getElementById(`slot-FINAL-center`) : document.getElementById(`slot-${m.id}-top`);
+                    const targetBot = m.side === 'C' ? document.getElementById(`slot-FINAL-center`) : document.getElementById(`slot-${m.id}-bot`);
+                    
+                    if (source1 && targetTop) connectEls(source1, targetTop, `${m.p1}-${m.id}`, m.p1.startsWith('R'));
+                    if (source2 && targetBot) connectEls(source2, targetBot, `${m.p2}-${m.id}`, m.p2.startsWith('R'));
+                });
+            });
+        }
+
+        function createAvatar(teamName, slotId) {
+            const slot = document.getElementById(slotId);
+            const avatar = document.createElement('div');
+            avatar.className = 'team-avatar';
+            avatar.id = `avatar-${teamName}`;
+            
+            const galaxy = document.createElement('div');
+            galaxy.className = 'orbit-galaxy';
+            avatar.appendChild(galaxy);
+            
+            const flagText = document.createElement('div');
+            flagText.className = 'flag-text';
+            flagText.innerText = flags[teamName] || '🏳️';
+            avatar.appendChild(flagText);
+            
+            const label = document.createElement('div');
+            label.className = 'team-label';
+            label.innerText = teamName;
+            avatar.appendChild(label);
+            
+            document.getElementById('teams-layer').appendChild(avatar);
+            positionOverSlot(avatar, slot);
+            updateOrbits(teamName);
+        }
+
+        function positionOverSlot(avatar, slot, offsetX = 0) {
+            const pos = getCoords(slot);
+            avatar.style.left = `${pos.x + offsetX}px`;
+            avatar.style.top = `${pos.y}px`;
+            avatar.style.transform = `translate(-50%, -50%)`;
+        }
+
+        function updateOrbits(teamName) {
+            const avatar = document.getElementById(`avatar-${teamName}`);
+            if(!avatar) return;
+            const galaxy = avatar.querySelector('.orbit-galaxy');
+            galaxy.innerHTML = ''; 
+            
+            const supporters = teamSupporters[teamName] || [];
+            if(supporters.length === 0) return;
+            
+            const rings = [
+                { count: 6, radius: 45, speed: 6, dir: 1 },
+                { count: 12, radius: 75, speed: 10, dir: -1 },
+                { count: 18, radius: 105, speed: 14, dir: 1 },
+                { count: 24, radius: 135, speed: 18, dir: -1 }
+            ];
+            
+            let currentRing = 0;
+            let inRingCount = 0;
+            
+            supporters.forEach((supporter) => {
+                if (inRingCount >= rings[currentRing].count) {
+                    currentRing = Math.min(currentRing + 1, rings.length - 1);
+                    inRingCount = 0;
+                }
+                
+                let ringData = rings[currentRing];
+                let angle = (360 / ringData.count) * inRingCount;
+                
+                const angleDiv = document.createElement('div');
+                angleDiv.className = 'orbit-wrapper';
+                angleDiv.style.transform = `rotate(${angle}deg)`;
+                
+                const spinDiv = document.createElement('div');
+                spinDiv.className = ringData.dir > 0 ? 'spin-cw' : 'spin-ccw';
+                spinDiv.style.setProperty('--speed', `${ringData.speed}s`);
+                
+                const translateDiv = document.createElement('div');
+                translateDiv.className = 'orb-translator';
+                translateDiv.style.transform = `translateX(${ringData.radius}px)`;
+                
+                const counterSpinDiv = document.createElement('div');
+                counterSpinDiv.className = `supporter-orb ${ringData.dir > 0 ? 'spin-ccw' : 'spin-cw'}`;
+                counterSpinDiv.style.setProperty('--speed', `${ringData.speed}s`);
+                counterSpinDiv.innerText = flags[supporter] || '🏳️';
+                counterSpinDiv.title = supporter;
+                
+                translateDiv.appendChild(counterSpinDiv);
+                spinDiv.appendChild(translateDiv);
+                angleDiv.appendChild(spinDiv);
+                galaxy.appendChild(angleDiv);
+                
+                inRingCount++;
+            });
+        }
+
+        function findMatch(matchId) {
+            for (let r of bracket) {
+                let m = r.matches.find(x => x.id === matchId);
+                if (m) return m;
+            }
+            return null;
+        }
+
+        function getTeamFromNode(nodeId) {
+            if (!/^[LR]\d+$/.test(nodeId) && nodeId !== "FINAL") return nodeId;
+            const match = findMatch(nodeId);
+            return match ? match.winner : nodeId;
+        }
+
+        function defeatTeam(loser, winner) {
+            const loserAvatar = document.getElementById(`avatar-${loser}`);
+            if (loserAvatar) {
+                loserAvatar.classList.add('defeated');
+                const galaxy = loserAvatar.querySelector('.orbit-galaxy');
+                if(galaxy) galaxy.innerHTML = '';
+            }
+            
+            if (!teamSupporters[winner]) teamSupporters[winner] = [];
+            teamSupporters[winner].push(loser);
+            
+            if (teamSupporters[loser]) {
+                teamSupporters[winner] = teamSupporters[winner].concat(teamSupporters[loser]);
+                teamSupporters[loser] = [];
+            }
+            
+            updateOrbits(winner);
+        }
+
+        let currentRound = 1; // Start by processing R16
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        async function simulateNextRound() {
+            const btn = document.getElementById('btn-next');
+            btn.disabled = true;
+            
+            if (currentRound > bracket.length) return;
+            
+            if (currentRound === bracket.length) {
+                // Process the Final
+                const finalMatch = bracket[bracket.length - 1].matches[0];
+                const winner = finalMatch.winner;
+                const loser = getTeamFromNode(finalMatch.p1) === winner ? getTeamFromNode(finalMatch.p2) : getTeamFromNode(finalMatch.p1);
+                
+                defeatTeam(loser, winner);
+                
+                const winnerAvatar = document.getElementById(`avatar-${winner}`);
+                positionOverSlot(winnerAvatar, document.getElementById('slot-FINAL-center'));
+                winnerAvatar.classList.add('champion-glow');
+                winnerAvatar.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                
+                document.getElementById('narration-title').innerText = "World Champions 2026";
+                document.getElementById('narration-text').innerText = `${winner} achieves ultimate harmony, absorbing the passions of the entire world.`;
+                btn.style.display = 'none';
+                return;
+            }
+            
+            const targetRound = bracket[currentRound];
+            document.getElementById('narration-title').innerText = targetRound.round;
+            document.getElementById('narration-text').innerText = "Knockout friction resolves. Winners absorb cultural supporters...";
+            
+            // Defeat previous round losers
+            const prevRound = bracket[currentRound - 1];
+            prevRound.matches.forEach(m => {
+                const winnerName = m.winner;
+                const loserName = getTeamFromNode(m.p1) === winnerName ? getTeamFromNode(m.p2) : getTeamFromNode(m.p1);
+                defeatTeam(loserName, winnerName);
+            });
+            
+            await sleep(600);
+            
+            // Move winners to new slots
+            targetRound.matches.forEach(m => {
+                const team1 = getTeamFromNode(m.p1);
+                const team2 = getTeamFromNode(m.p2);
+                
+                const avatar1 = document.getElementById(`avatar-${team1}`);
+                const avatar2 = document.getElementById(`avatar-${team2}`);
+                
+                const slot1 = m.side === 'C' ? document.getElementById('slot-FINAL-center') : document.getElementById(`slot-${m.id}-top`);
+                const slot2 = m.side === 'C' ? document.getElementById('slot-FINAL-center') : document.getElementById(`slot-${m.id}-bot`);
+                
+                if(m.side === 'C') {
+                    positionOverSlot(avatar1, slot1, -60);
+                    positionOverSlot(avatar2, slot1, 60);
+                } else {
+                    positionOverSlot(avatar1, slot1);
+                    positionOverSlot(avatar2, slot2);
+                }
+                
+                const line1 = document.getElementById(`line-${m.p1}-${m.id}`);
+                const line2 = document.getElementById(`line-${m.p2}-${m.id}`);
+                if (line1) line1.classList.add('active');
+                if (line2) line2.classList.add('active');
+            });
+            
+            await sleep(1500);
+            currentRound++;
+            
+            if (currentRound < bracket.length) {
+                btn.innerText = `Commence ${bracket[currentRound].round}`;
+            } else {
+                btn.innerText = "Simulate Grand Final";
+            }
+            btn.disabled = false;
+        }
+
+        window.onload = () => {
+            renderColumns();
+            // Wait for DOM layout
+            setTimeout(() => {
+                drawBracketLines();
+                bracket[0].matches.forEach(m => {
+                    createAvatar(m.p1, `slot-${m.id}-top`);
+                    createAvatar(m.p2, `slot-${m.id}-bot`);
+                });
+            }, 100);
+        };
+
+        window.addEventListener('resize', () => {
+            drawBracketLines();
+            // We'd reposition avatars here for true responsiveness, but strict sizing prevents breaks.
+        });
+    </script>
+</body>
+</html>
